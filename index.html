@@ -97,6 +97,41 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .scores div.best{background:var(--gold);font-weight:800}
 input[type=range]{width:100%;height:44px;accent-color:var(--pri)}
 pre{margin:0;font:12px/1.4 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto;background:var(--bg);border-radius:12px;padding:10px}
+.tab{font-size:13px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.step{width:100%;min-height:68px;border-radius:18px;border:1px solid var(--line);background:var(--surf);display:flex;align-items:center;gap:12px;padding:10px 14px;text-align:left}
+.step .num{flex:none;width:36px;height:36px;border-radius:12px;background:var(--prisoft);display:flex;align-items:center;justify-content:center;font-weight:800}
+.step .tx{flex:1;display:flex;flex-direction:column;gap:2px}
+.step .tx b{font-size:17px;font-weight:700}
+.step .tx span{font-size:14px;color:var(--muted)}
+.step .stt{flex:none;font-size:13px;font-weight:800;border-radius:10px;padding:8px 10px}
+.step.done{background:var(--oksoft);border-color:var(--okline)}
+.step.done .num{background:#fff}
+.step.done .stt{color:#065F46}
+.step.cur{border:2px solid var(--pri)}
+.step.cur .stt{background:var(--gold)}
+.step.lock,.step.lock .tx b{color:var(--muted)}
+.step:disabled{cursor:not-allowed}
+.stepbar{background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stepbar.ok{background:var(--ok)}
+.stepbar div{display:flex;flex-direction:column;gap:2px;font-size:14px}
+.stepbar b{font-size:15px}
+.stepbar button{flex:none;min-height:44px;border-radius:12px;border:none;background:#fff;color:var(--ink);font-size:14px;font-weight:700;padding:0 12px}
+.bars{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.bars li{height:72px;border-radius:14px;border:1px solid var(--line);background:var(--surf);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:28px;font-weight:800;line-height:1}
+.bars li small{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--muted);min-height:13px}
+.bars li.now{border:3px solid var(--pri);background:var(--prisoft)}
+.bars li.now small{color:var(--ink)}
+.bars li.certo{background:var(--oksoft);border-color:var(--okline)}
+.bars li.certo small{color:#065F46}
+.bars li.errado{background:var(--warnsoft);border:2px solid var(--ink)}
+.bars li.errado small{color:var(--ink)}
+.beats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.beats span{height:14px;border-radius:7px;background:var(--prisoft)}
+.beats span.on{background:var(--pri)}
+.bpm{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bpm button{width:52px;height:52px;border-radius:16px;border:1px solid var(--line2);background:var(--bg);font-size:26px;font-weight:700}
+.bpm b{font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.gauge .needle{transition:none}}
 </style>
 </head>
@@ -114,8 +149,33 @@ pre{margin:0;font:12px/1.4 ui-monospace,Consolas,monospace;white-space:pre-wrap;
 <p id="gateMsg" class="light" role="status"></p>
 </section>
 
+<div id="stepBar" class="stepbar" role="status" hidden><div><b id="sbTitle"></b><span id="sbGoal"></span></div><button type="button" id="sbBack">Trilha</button></div>
+
 <main>
-<section id="view-afinador" class="view" aria-label="Afinador">
+<section id="view-trilha" class="view" aria-label="Trilha">
+<div class="block">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#D9DAF7">NÍVEL 1</div>
+<h1 class="h1">Primeiros acordes</h1>
+<div class="light" id="trTxt">0 de 9 passos</div>
+<div class="bar" role="img" id="trBar" aria-label="0 de 9 passos" style="background:#4A43BD"><div id="trBarIn" style="background:#FBBF24"></div></div>
+</div>
+<div class="soft good" id="trDone" hidden><b class="h2">Nível 1 concluído</b><span>Você afina, monta A, D e E, troca entre eles e toca o Estudo 1. O nível 2 ainda não existe nesta versão de teste.</span></div>
+<ol class="steps" id="trSteps"></ol>
+</section>
+
+<section id="view-estudo" class="view" aria-label="Estudo 1" hidden>
+<div class="row"><h1 class="h1">Estudo 1</h1><span class="small">A, D e E · 16 compassos</span></div>
+<div class="card">
+<div class="bpm"><button type="button" id="eMinus" aria-label="Diminuir a velocidade">−</button><div class="center"><b id="eBpm">60</b><div class="small">batidas por minuto</div></div><button type="button" id="ePlus" aria-label="Aumentar a velocidade">+</button></div>
+<div class="beats" id="eBeats" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+</div>
+<ol class="bars" id="eBars" aria-label="Compassos do estudo"></ol>
+<div class="soft" id="eTip" role="status"><b class="h2" id="eTipTitle">Um acorde por compasso</b><span id="eTipTxt">Toque o acorde no primeiro tempo de cada compasso. São 4 batidas em cada um.</span></div>
+<div class="two"><button type="button" class="btn sec" id="eClick" aria-pressed="true" style="font-size:14px;padding:0 10px">Metrônomo: ligado</button><div class="stat"><span>Melhor resultado</span><b id="eBest">–</b></div></div>
+<button type="button" class="btn" id="eStart">Começar</button>
+</section>
+
+<section id="view-afinador" class="view" aria-label="Afinador" hidden>
 <div class="block">
 <div class="center" style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#D9DAF7" id="tStr">AFINADOR</div>
 <div class="bignote" id="tNote">–</div>
@@ -180,12 +240,15 @@ pre{margin:0;font:12px/1.4 ui-monospace,Consolas,monospace;white-space:pre-wrap;
 </div>
 <button type="button" class="btn sec" id="dWipe">Apagar recordes salvos</button>
 <p class="small" id="dWipeMsg" role="status"></p>
+<button type="button" class="btn sec" id="dTrilha">Reiniciar a trilha</button>
+<p class="small" id="dTrilhaMsg" role="status"></p>
 </section>
 </main>
 </div>
 
 <nav class="tabs" aria-label="Navegação principal"><div>
-<button type="button" class="tab" data-view="afinador" aria-current="page">Afinador</button>
+<button type="button" class="tab" data-view="trilha" aria-current="page">Trilha</button>
+<button type="button" class="tab" data-view="afinador">Afinador</button>
 <button type="button" class="tab" data-view="acorde">Acorde</button>
 <button type="button" class="tab" data-view="troca">Troca</button>
 <button type="button" class="tab" data-view="ajustes">Ajustes</button>
@@ -422,7 +485,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
   var PAIRS = [['A', 'D'], ['D', 'E'], ['A', 'E']];
 
   var audio = { ctx: null, analyser: null, buf: null, on: false };
-  var st = { view: 'afinador', gate: store.get('gate', 0.01), thr: store.get('thr', 0.66), env: 0, muteUntil: 0, tickN: 0 };
+  var st = { view: 'trilha', step: null, stepOk: false, micAt: 0, gate: store.get('gate', 0.01), thr: store.get('thr', 0.66), env: 0, muteUntil: 0, tickN: 0 };
   var logLines = [];
   function log(s) { var d = new Date(); logLines.push(('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2) + ' ' + s); if (logLines.length > 60) logLines.shift(); if (st.view === 'ajustes') $('dLog').textContent = logLines.join('\n'); }
   function fmtScores(sc) { return Object.keys(sc).map(function (k) { return k + ' ' + sc[k].toFixed(2); }).join(', '); }
@@ -448,7 +511,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
       an.fftSize = 16384; an.smoothingTimeConstant = 0;
       if (!an.getFloatTimeDomainData) { gateMsg('Este navegador é antigo demais para o teste. Atualize ou use o Chrome.'); return; }
       ctx.createMediaStreamSource(stream).connect(an);
-      audio.analyser = an; audio.buf = new Float32Array(an.fftSize); audio.on = true;
+      audio.analyser = an; audio.buf = new Float32Array(an.fftSize); audio.on = true; st.micAt = Date.now();
       $('gate').hidden = true; $('micChip').classList.add('on'); $('micChipTxt').textContent = 'Microfone ouvindo';
       log('microfone ligado, ' + ctx.sampleRate + ' Hz, limite de volume ' + st.gate.toFixed(4) + ', exigência ' + st.thr.toFixed(2));
       setInterval(tick, 60);
@@ -473,7 +536,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
     if (st.view === 'afinador') tuner(x);
     else if (st.view === 'acorde') acorde(x);
     else if (st.view === 'troca') troca(x);
-    else ajustes(x);
+    else if (st.view === 'estudo') estudo(x);
+    else if (st.view === 'ajustes') ajustes(x);
     st.env = st.env * 0.85 + level * 0.15;
   }
   function pitchOf(x) { return x.loud ? DSP.yin(x.buf.subarray(x.N - 4096), audio.ctx.sampleRate) : { freq: 0, clarity: 0 }; }
@@ -516,7 +580,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
     $('tGauge').setAttribute('aria-label', Math.abs(c) <= 5 ? 'Afinada' : Math.abs(c).toFixed(0) + ' cents ' + (c < 0 ? 'abaixo' : 'acima'));
     if (Math.abs(c) <= 5) {
       tip('t', 'good', 'Afinada', 'Deixe soar um instante para confirmar.');
-      if (++tn.inTune === 8 && !tn.tuned[s]) { tn.tuned[s] = 1; store.set('tuned', tn.tuned); drawStrings(); log('afinador: ' + ORD[s] + ' corda afinada (' + y.freq.toFixed(1) + ' Hz)'); }
+      if (++tn.inTune === 8 && !tn.tuned[s]) { tn.tuned[s] = 1; store.set('tuned', tn.tuned); drawStrings(); log('afinador: ' + ORD[s] + ' corda afinada (' + y.freq.toFixed(1) + ' Hz)'); if (tn.tuned.every(Boolean)) stepDone('afinador'); }
     } else {
       tn.inTune = 0;
       var far = Math.abs(c) > 50;
@@ -579,7 +643,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
       if (!x.loud) { ac.okStreak = 0; return; }
       var r = chordOf(x);
       if (r.best === ac.name && r.score >= st.thr) {
-        if (++ac.okStreak === 2) { tip('a', 'good', 'Acorde ' + ac.name + ' reconhecido', 'Todas as cordas soaram e o acorde saiu limpo. Pode ir para o treino de troca.'); log('acorde inteiro ' + ac.name + ' ok: ' + fmtScores(r.scores)); }
+        if (++ac.okStreak === 2) { tip('a', 'good', 'Acorde ' + ac.name + ' reconhecido', 'Todas as cordas soaram e o acorde saiu limpo. Pode ir para o treino de troca.'); log('acorde inteiro ' + ac.name + ' ok: ' + fmtScores(r.scores)); stepDone('acorde', ac.name); }
       } else { ac.okStreak = 0; if (x.onset) log('acorde inteiro ' + ac.name + ' não bateu: ' + fmtScores(r.scores)); }
       return;
     }
@@ -647,6 +711,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
       if (rec === null || n > rec) { store.set(recKey(), n); tip('p', 'good', n + ' trocas: novo recorde', rec === null ? 'Esse é o seu ponto de partida. A meta do nível 1 é 20.' : 'O recorde anterior era ' + rec + '. A meta do nível 1 é 20.'); }
       else tip('p', '', n + ' trocas em 1 minuto', 'Seu recorde é ' + rec + '. A meta do nível 1 é 20.');
       log('troca ' + p.join('↔') + ' terminou com ' + n);
+      stepDone('troca', { pair: tr.pair, n: n });
+      var sp = st.step !== null ? STEPS[st.step] : null;
+      if (sp && sp.view === 'troca' && sp.pair === tr.pair) {
+        if (st.stepOk) tip('p', 'good', n + ' trocas: meta atingida', 'Passo concluído. Toque em Continuar, no topo da tela.');
+        else tip('p', 'warn', n + ' trocas em 1 minuto', 'A meta deste passo é ' + sp.goal + '. Descanse a mão e tente de novo.');
+      }
       showTime(0);
     } else { tip('p', '', 'Treino interrompido', 'Esse resultado não foi salvo.'); showTime(60000); }
     drawPair();
@@ -695,12 +765,156 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); }); else done(false);
   }
 
+  /* ---------- trilha ---------- */
+  var STEPS = [
+    { id: 'afinar', t: 'Afinar o violão', d: 'as seis cordas afinadas', view: 'afinador' },
+    { id: 'A', t: 'Acorde A', d: 'todas as cordas limpas e o acorde inteiro', view: 'acorde', chord: 'A' },
+    { id: 'D', t: 'Acorde D', d: 'todas as cordas limpas e o acorde inteiro', view: 'acorde', chord: 'D' },
+    { id: 'AD', t: 'Troca A ↔ D', d: '10 trocas em 1 minuto', view: 'troca', pair: 0, goal: 10 },
+    { id: 'E', t: 'Acorde E', d: 'todas as cordas limpas e o acorde inteiro', view: 'acorde', chord: 'E' },
+    { id: 'DE', t: 'Troca D ↔ E', d: '10 trocas em 1 minuto', view: 'troca', pair: 1, goal: 10 },
+    { id: 'AE', t: 'Troca A ↔ E', d: '10 trocas em 1 minuto', view: 'troca', pair: 2, goal: 10 },
+    { id: 'estudo1', t: 'Estudo 1', d: 'acertar 12 dos 16 compassos', view: 'estudo', goal: 12 },
+    { id: 'meta', t: 'Meta do nível', d: '20 trocas em 1 minuto, em A ↔ D', view: 'troca', pair: 0, goal: 20 }
+  ];
+  var tl = { done: store.get('trilha', {}) };
+  function firstOpen() { for (var i = 0; i < STEPS.length; i++) if (!tl.done[STEPS[i].id]) return i; return STEPS.length; }
+  function drawTrilha() {
+    var ol = $('trSteps'), cur = firstOpen(), n = 0; ol.textContent = '';
+    STEPS.forEach(function (s, i) {
+      var done = !!tl.done[s.id]; if (done) n++;
+      var li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+      b.className = 'step' + (done ? ' done' : i === cur ? ' cur' : ' lock'); b.disabled = !done && i !== cur;
+      var num = document.createElement('span'); num.className = 'num'; num.textContent = i + 1;
+      var tx = document.createElement('span'); tx.className = 'tx';
+      var t1 = document.createElement('b'); t1.textContent = s.t; var t2 = document.createElement('span'); t2.textContent = 'Meta: ' + s.d;
+      tx.appendChild(t1); tx.appendChild(t2);
+      var stt = document.createElement('span'); stt.className = 'stt'; stt.textContent = done ? 'Feito' : i === cur ? 'Começar' : 'Bloqueado';
+      b.appendChild(num); b.appendChild(tx); b.appendChild(stt);
+      b.onclick = function () { openStep(i); };
+      li.appendChild(b); ol.appendChild(li);
+    });
+    $('trTxt').textContent = n + ' de ' + STEPS.length + ' passos'; $('trBarIn').style.width = (n / STEPS.length * 100) + '%';
+    $('trBar').setAttribute('aria-label', n + ' de ' + STEPS.length + ' passos'); $('trDone').hidden = n < STEPS.length;
+  }
+  function openStep(i) {
+    var s = STEPS[i]; st.step = i; st.stepOk = false;
+    if (s.view === 'afinador') { tn.tuned = [0, 0, 0, 0, 0, 0]; store.set('tuned', tn.tuned); tn.lock = -1; tn.cur = -1; drawStrings(); tip('t', '', 'Toque uma corda solta', 'Comece pela 6ª corda, a mais grossa.'); }
+    else if (s.view === 'acorde') setChord(s.chord);
+    else if (s.view === 'troca') { tr.pair = s.pair; store.set('pair', s.pair); $('pCount').textContent = '0'; $('pStart').textContent = 'Começar'; showTime(60000); tip('p', '', 'Um toque em cada acorde', 'Alterne entre os dois acordes por 1 minuto. A meta deste passo é ' + s.goal + ' trocas.'); drawPair(); }
+    else if (s.view === 'estudo') resetEstudo();
+    log('passo aberto: ' + s.t);
+    show(s.view);
+  }
+  function drawStepBar() {
+    var el = $('stepBar');
+    if (st.step === null || STEPS[st.step].view !== st.view) { el.hidden = true; return; }
+    var s = STEPS[st.step]; el.hidden = false; el.className = 'stepbar' + (st.stepOk ? ' ok' : '');
+    $('sbTitle').textContent = 'Passo ' + (st.step + 1) + ' de ' + STEPS.length + ' · ' + s.t;
+    $('sbGoal').textContent = st.stepOk ? 'Passo concluído' : 'Meta: ' + s.d;
+    $('sbBack').textContent = st.stepOk ? 'Continuar' : 'Trilha';
+  }
+  function stepDone(view, v) {
+    if (st.step === null) return;
+    var s = STEPS[st.step];
+    if (s.view !== view) return;
+    if (view === 'acorde' && v !== s.chord) return;
+    if (view === 'troca' && (v.pair !== s.pair || v.n < s.goal)) return;
+    if (view === 'estudo' && v < s.goal) return;
+    tl.done[s.id] = true; store.set('trilha', tl.done); st.stepOk = true;
+    log('passo concluído: ' + s.t); drawStepBar();
+  }
+
+  /* ---------- estudo: progressão de acordes com metrônomo ---------- */
+  var PROG = ['A', 'A', 'D', 'A', 'A', 'A', 'E', 'E', 'A', 'A', 'D', 'A', 'A', 'E', 'A', 'A'];
+  var es = { bpm: store.get('bpm', 60), click: store.get('click', true), running: false, t0: 0, bar: -1, beat: -999, ok: false, streak: 0, status: [], last: '' };
+  function drawBars() {
+    var ol = $('eBars'); ol.textContent = '';
+    PROG.forEach(function (c, i) {
+      var li = document.createElement('li'), stt = es.status[i], now = es.running && i === es.bar;
+      li.className = stt ? stt : now ? 'now' : ''; li.style.color = COLORS[c];
+      var a = document.createElement('span'); a.textContent = c;
+      var b = document.createElement('small'); b.textContent = stt === 'certo' ? 'CERTO' : stt === 'errado' ? 'ERROU' : now ? 'AGORA' : '';
+      li.setAttribute('aria-label', 'Compasso ' + (i + 1) + ', acorde ' + c + (stt ? ', ' + (stt === 'certo' ? 'certo' : 'errou') : now ? ', agora' : ''));
+      li.appendChild(a); li.appendChild(b); ol.appendChild(li);
+    });
+  }
+  function drawEstudo() {
+    $('eBpm').textContent = es.bpm;
+    $('eClick').textContent = 'Metrônomo: ' + (es.click ? 'ligado' : 'desligado'); $('eClick').setAttribute('aria-pressed', es.click ? 'true' : 'false');
+    var best = store.get('estudo1', null); $('eBest').textContent = best === null ? '–' : best + ' de 16';
+    $('eMinus').disabled = $('ePlus').disabled = es.running;
+  }
+  function setBeat(k) { Array.prototype.forEach.call($('eBeats').children, function (sp, i) { sp.className = i === k ? 'on' : ''; }); }
+  function resetEstudo() {
+    es.running = false; es.status = []; es.bar = -1; $('eStart').textContent = 'Começar'; setBeat(-1);
+    tip('e', '', 'Um acorde por compasso', 'Toque o acorde no primeiro tempo de cada compasso. São 4 batidas em cada um.');
+    drawBars(); drawEstudo();
+  }
+  function clickSound(accent) {
+    if (!es.click) return;
+    var ctx = ensureCtx(); if (!ctx) return;
+    try {
+      var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+      o.frequency.value = accent ? 3200 : 2600; o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+      o.start(t); o.stop(t + 0.05);
+    } catch (e) { /* sem som de metrônomo */ }
+  }
+  function startEstudo() {
+    if (!audio.on) { tip('e', 'warn', 'Ative o microfone primeiro', 'Toque em Ativar microfone no topo da tela.'); return; }
+    es.running = true; es.status = []; es.bar = -1; es.beat = -999; es.ok = false; es.streak = 0;
+    es.t0 = Date.now() + 4 * 60000 / es.bpm; $('eStart').textContent = 'Parar';
+    log('estudo 1 iniciado a ' + es.bpm + ' BPM, exigência ' + st.thr.toFixed(2));
+    drawBars(); drawEstudo();
+  }
+  function finishEstudo(done) {
+    es.running = false; $('eStart').textContent = 'Começar de novo'; setBeat(-1);
+    if (done) {
+      var hits = es.status.filter(function (s) { return s === 'certo'; }).length, best = store.get('estudo1', null);
+      if (best === null || hits > best) store.set('estudo1', hits);
+      log('estudo 1 terminou: ' + hits + ' de 16');
+      stepDone('estudo', hits);
+      if (hits >= 12) tip('e', 'good', hits + ' de 16 compassos certos', st.stepOk ? 'Passo concluído. Toque em Continuar, no topo da tela.' : 'Muito bem. Tente agora um pouco mais rápido.');
+      else tip('e', 'warn', hits + ' de 16 compassos certos', 'A meta é 12. Diminua a velocidade e tente de novo.');
+    } else tip('e', '', 'Estudo interrompido', 'Esse resultado não foi salvo.');
+    drawBars(); drawEstudo();
+  }
+  function estudo(x) {
+    if (!es.running) return;
+    var bd = 60000 / es.bpm, t = x.now - es.t0, beat = Math.floor(t / bd), bar = Math.floor(beat / 4);
+    if (beat !== es.beat) {
+      es.beat = beat; var k = ((beat % 4) + 4) % 4;
+      clickSound(k === 0); setBeat(k);
+      if (t < 0) tip('e', '', 'Prepare-se: ' + (-beat), 'Monte o acorde A e comece quando a contagem terminar.');
+    }
+    if (t < 0) return;
+    if (bar !== es.bar) {
+      if (es.bar >= 0 && !es.ok) { es.status[es.bar] = 'errado'; log('estudo compasso ' + (es.bar + 1) + ' ' + PROG[es.bar] + ' errou: ' + es.last); }
+      es.bar = bar; es.ok = false; es.streak = 0; es.last = 'sem som';
+      if (bar >= PROG.length) { finishEstudo(true); return; }
+      if (bar === 0) tip('e', '', 'Valendo', 'Troque de acorde quando o compasso mudar.');
+      drawBars();
+    }
+    if (es.ok) return;
+    if (!x.loud) { es.streak = 0; return; }
+    var want = PROG[bar], r = chordOf(x, ['A', 'D', 'E']);
+    es.last = fmtScores(r.scores);
+    if (r.best === want && r.scores[want] >= st.thr) {
+      if (++es.streak >= 2) { es.ok = true; es.status[bar] = 'certo'; log('estudo compasso ' + (bar + 1) + ' ' + want + ' certo: ' + es.last); drawBars(); }
+    } else es.streak = 0;
+  }
+
   /* ---------- navegação e início ---------- */
   function show(view) {
     if (tr.running && view !== 'troca') stopTroca(false);
+    if (es.running && view !== 'estudo') finishEstudo(false);
     st.view = view;
-    ['afinador', 'acorde', 'troca', 'ajustes'].forEach(function (v) { $('view-' + v).hidden = v !== view; });
-    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { if (b.dataset.view === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    if (view === 'trilha') { st.step = null; drawTrilha(); }
+    ['trilha', 'estudo', 'afinador', 'acorde', 'troca', 'ajustes'].forEach(function (v) { $('view-' + v).hidden = v !== view; });
+    var tabView = view === 'estudo' ? 'trilha' : view;
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { if (b.dataset.view === tabView) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    drawStepBar();
     if (view === 'ajustes') $('dLog').textContent = logLines.length ? logLines.join('\n') : 'Nada registrado ainda.';
     window.scrollTo(0, 0);
   }
@@ -718,11 +932,17 @@ if (typeof module !== 'undefined' && module.exports) module.exports = DSP;
     $('dCal').onclick = function () { if (!audio.on) { $('dCalMsg').textContent = 'Ative o microfone primeiro.'; return; } cal.on = true; cal.max = 0; cal.end = Date.now() + 2000; $('dCal').disabled = true; $('dCalMsg').textContent = 'Medindo… fique em silêncio.'; };
     $('dThr').oninput = function () { st.thr = parseFloat(this.value); store.set('thr', st.thr); drawThr(); };
     $('dCopy').onclick = copyLog;
+    $('sbBack').onclick = function () { show('trilha'); };
+    $('eStart').onclick = function () { if (es.running) finishEstudo(false); else startEstudo(); };
+    $('eMinus').onclick = function () { es.bpm = Math.max(40, es.bpm - 5); store.set('bpm', es.bpm); drawEstudo(); };
+    $('ePlus').onclick = function () { es.bpm = Math.min(120, es.bpm + 5); store.set('bpm', es.bpm); drawEstudo(); };
+    $('eClick').onclick = function () { es.click = !es.click; store.set('click', es.click); drawEstudo(); };
+    $('dTrilha').onclick = function () { tl.done = {}; store.del('trilha'); store.del('estudo1'); st.step = null; $('dTrilhaMsg').textContent = 'Trilha reiniciada. Todos os passos voltaram ao começo.'; drawTrilha(); };
     $('dWipe').onclick = function () { PAIRS.forEach(function (p) { store.del('rec_' + p.join('-')); store.del('hist_' + p.join('-')); }); $('dWipeMsg').textContent = 'Recordes apagados deste aparelho.'; drawPair(); };
     if (window.isSecureContext === false) gateMsg('Atenção: este endereço não é seguro (https). O navegador pode bloquear o microfone.');
-    drawStrings(); setChord(ac.name); drawPair(); drawThr();
+    drawStrings(); setChord(ac.name); drawPair(); drawThr(); drawTrilha(); drawBars(); drawEstudo();
   }
-  window.__pa = { st: st, tn: tn, ac: ac, tr: tr, audio: audio, logLines: logLines };
+  window.__pa = { st: st, tn: tn, ac: ac, tr: tr, es: es, tl: tl, STEPS: STEPS, audio: audio, logLines: logLines };
   init();
 })();
 </script>
